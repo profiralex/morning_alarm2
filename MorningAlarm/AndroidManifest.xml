@@ -1,0 +1,116 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="app.morningalarm"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="15" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission android:name="com.example.gcm.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="com.example.gcm.permission.C2D_MESSAGE" />
+    
+    <application
+        android:debuggable="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <!--  <meta-data android:name="com.google.android.gms.version"
+           android:value="AIzaSyD2fHyKVkYQ_d-_A9sdyuxAmZ3EYT_0VUk"/>-->
+           
+           <meta-data android:name="com.google.android.gms.version"
+           android:value="4030500" />
+          
+        <activity
+            android:name=".AlarmListActivity"
+            android:label="@string/title_activity_main" >
+            <!--<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+        </activity>
+        <activity
+            android:name=".AlarmSettingsActivity"
+            android:label="@string/title_activity_main" >
+        </activity>
+        <activity
+            android:name=".AlarmFragmentsSettingsActivity"
+            android:label="@string/title_activity_main" >
+        </activity>
+        <activity
+            android:name="app.tasks.MathAlarmTask"
+            android:label="@string/title_activity_main" >
+        </activity>
+        <activity
+            android:name="app.tasks.SimpleAlarmTask"
+            android:label="@string/title_activity_main" >
+        </activity>
+        <activity
+            android:name="app.tasks.LogicAlarmTask"
+            android:label="@string/title_activity_main" >
+        </activity>
+        <receiver android:name="app.alarmmanager.OnBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name="app.alarmmanager.OnAlarmReceiver" android:enabled="true"/>
+        <service android:name="app.alarmmanager.AlarmService"/>
+        <service android:name="app.alarmmanager.AlarmRefreshingService"/>
+        <receiver
+	       android:icon="@drawable/ic_launcher"
+	       android:label="Morning Alarm Widget"
+	       android:name="app.morningalarm.MorningAlarmWidgetProvider" >
+	       <intent-filter >
+	            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+	       </intent-filter>
+	
+	       <meta-data
+	          android:name="android.appwidget.provider"
+	          android:resource="@xml/widget_info" />
+		</receiver>
+		<service android:name="app.morningalarm.MorningAlarmWidgetProvider$ToggleService"/>
+
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Main Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/app_name" >
+        </activity>
+
+        <receiver
+            android:name="com.google.android.gcm.GCMBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+
+                <!-- Receives the actual messages. -->
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <!-- Receives the registration id. -->
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.androidhive.pushnotifications" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".GCMIntentService" />
+
+	</application>
+</manifest>

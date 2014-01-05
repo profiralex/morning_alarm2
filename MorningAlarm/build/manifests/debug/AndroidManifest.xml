@@ -1,0 +1,63 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="app.morningalarm">
+
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+
+    <permission android:name="com.example.gcm.permission.C2D_MESSAGE" android:protectionLevel="signature"/>
+    <uses-permission android:name="com.example.gcm.permission.C2D_MESSAGE"/>
+    
+    <application android:debuggable="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:theme="@style/AppTheme">
+        <!--  <meta-data android:name="com.google.android.gms.version"
+           android:value="AIzaSyD2fHyKVkYQ_d-_A9sdyuxAmZ3EYT_0VUk"/>-->
+           
+           <meta-data android:name="com.google.android.gms.version" android:value="4030500"/>
+          
+        <activity android:label="@string/title_activity_main" android:name="app.morningalarm.AlarmListActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:label="@string/title_activity_main" android:name="app.morningalarm.AlarmSettingsActivity">
+        </activity>
+        <activity android:label="@string/title_activity_main" android:name="app.morningalarm.AlarmFragmentsSettingsActivity">
+        </activity>
+        <activity android:label="@string/title_activity_main" android:name="app.morningalarm.preferences.AlarmSettingsFragment">
+        </activity>
+        <activity android:label="@string/title_activity_main" android:name="app.tasks.MathAlarmTask">
+        </activity>
+        <activity android:label="@string/title_activity_main" android:name="app.tasks.SimpleAlarmTask">
+        </activity>
+        <activity android:label="@string/title_activity_main" android:name="app.tasks.LogicAlarmTask">
+        </activity>
+        <receiver android:name="app.alarmmanager.OnBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:enabled="true" android:name="app.alarmmanager.OnAlarmReceiver"/>
+        <service android:name="app.alarmmanager.AlarmService"/>
+        <service android:name="app.alarmmanager.AlarmRefreshingService"/>
+        <receiver android:icon="@drawable/ic_launcher" android:label="Morning Alarm Widget" android:name="app.morningalarm.MorningAlarmWidgetProvider">
+	       <intent-filter>
+	            <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+	       </intent-filter>
+	
+	       <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info"/>
+		</receiver>
+		<receiver android:name="app.morningalarm.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+                <category android:name="com.example.gcm"/>
+            </intent-filter>
+        </receiver>
+        <service android:name="app.morningalarm.GcmIntentService"/> 
+		<service android:name="app.morningalarm.MorningAlarmWidgetProvider$ToggleService"/>
+	</application>
+</manifest>

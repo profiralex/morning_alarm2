@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/home_screen_widget"
+    android:minHeight="79dp"
+    android:minWidth="79dp"
+    android:updatePeriodMillis="300000" >
+</appwidget-provider> <!-- From: file:/home/alexandr/AndroidStudioProjects/MorningAlarm/MorningAlarm/res/xml/widget_info.xml -->

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/delete_option" android:title="@string/delete_option_string"></item>
+</menu><!-- From: file:/home/alexandr/AndroidStudioProjects/MorningAlarm/MorningAlarm/res/menu/context_menu.xml -->

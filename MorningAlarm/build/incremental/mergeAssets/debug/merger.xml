@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="MorningAlarmGooglePlayServices_libUnspecified.aar" >
+        <source path="/home/alexandr/AndroidStudioProjects/MorningAlarm/MorningAlarm/build/exploded-bundles/MorningAlarmGooglePlayServices_libUnspecified.aar/assets" />
+    </dataSet>
+    <dataSet config="main" >
+        <source path="/home/alexandr/AndroidStudioProjects/MorningAlarm/MorningAlarm/assets" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="/home/alexandr/AndroidStudioProjects/MorningAlarm/MorningAlarm/build-types/debug/assets" />
+    </dataSet>
+
+</merger>

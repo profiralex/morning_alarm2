@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <EditTextPreference 
+        android:key="description" 
+        android:title="@string/description_title" 
+        android:defaultValue="@string/def_value_description"/>
+    <app.morningalarm.preferences.TimePreference 
+        android:key="time" 
+        android:title="@string/time_title"/> 
+    <app.morningalarm.preferences.ListPreferenceMultiSelect
+    	android:key="days_of_week"
+    	android:title="@string/day_of_week_title" 
+    	android:dialogTitle="@string/day_of_week_title" 
+    	android:entries="@array/days_of_week_array" 
+    	android:entryValues="@array/days_of_week_values"
+    	android:defaultValue="#ALL#"/>
+    <ListPreference 
+        android:title="@string/wake_up_mode_title" 
+        android:entries="@array/wake_up_mode_array" 
+        android:key="wake_up_mode" 
+        android:entryValues="@array/wake_up_mode_values"
+        android:defaultValue="0"/>
+    <RingtonePreference 
+        android:showDefault="true" 
+        android:ringtoneType="alarm" 
+        android:showSilent="false" 
+        android:key="ringtone" 
+        android:title="@string/ring_tone_title"
+        android:defaultValue="content://settings/system/alarm_alert"/>
+</PreferenceScreen>

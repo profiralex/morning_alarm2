@@ -1,0 +1,2 @@
+include ':MorningAlarm'
+include ':google-play-services_lib'

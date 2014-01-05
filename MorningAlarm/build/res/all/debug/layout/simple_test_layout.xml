@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:addStatesFromChildren="true"
+    android:gravity="center_vertical|center_horizontal"
+    android:orientation="horizontal" >
+
+    <Button
+        android:id="@+id/simple_test_snooze_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/snooze_button_title" />
+
+    <Button
+        android:id="@+id/simple_test_cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel_button" />
+
+</LinearLayout>
+<!-- From: file:/home/alexandr/AndroidStudioProjects/MorningAlarm/MorningAlarm/res/layout/simple_test_layout.xml -->
