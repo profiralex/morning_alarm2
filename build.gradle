@@ -4,6 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+        compile: "com.google.android.gms:play-services:3.1.+"
         classpath 'com.android.tools.build:gradle:0.6.+'
     }
 }
