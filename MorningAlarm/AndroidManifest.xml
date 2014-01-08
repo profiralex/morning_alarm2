@@ -77,7 +77,7 @@
 		<service android:name="app.morningalarm.MorningAlarmWidgetProvider$ToggleService"/>
         <!-- android:permission="com.google.android.c2dm.permission.SEND" -->
         <receiver
-            android:name=".GcmBroadcastReceiver"
+            android:name="app.gcm.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND"
             >
             <intent-filter>
@@ -86,7 +86,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".GcmIntentService" />
+        <service android:name="app.gcm.GcmIntentService" />
 
 	</application>
 </manifest>

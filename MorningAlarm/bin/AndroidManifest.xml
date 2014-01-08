@@ -82,14 +82,14 @@
 	          android:resource="@xml/widget_info" />
 		</receiver>
 		<receiver
-            android:name=".GcmBroadcastReceiver"
+            android:name="app.gcm.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <category android:name="com.example.gcm" />
             </intent-filter>
         </receiver>
-        <service android:name=".GcmIntentService" /> 
+        <service android:name="app.gcm.GcmIntentService" />
 		<service android:name="app.morningalarm.MorningAlarmWidgetProvider$ToggleService"/>
 	</application>
 </manifest>

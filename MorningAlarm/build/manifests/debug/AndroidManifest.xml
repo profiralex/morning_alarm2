@@ -48,14 +48,14 @@
 		</receiver>
 		<service android:name="app.morningalarm.MorningAlarmWidgetProvider$ToggleService"/>
         <!-- android:permission="com.google.android.c2dm.permission.SEND" -->
-        <receiver android:name="app.morningalarm.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver android:name="app.gcm.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
                 <category android:name="app.morningalarm"/>
             </intent-filter>
         </receiver>
 
-        <service android:name="app.morningalarm.GcmIntentService"/>
+        <service android:name="app.gcm.GcmIntentService"/>
 
 	</application>
 </manifest>
