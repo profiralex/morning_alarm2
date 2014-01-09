@@ -139,7 +139,7 @@
 
     <string name="day_of_week_title">Days of week</string>
     <string name="def_value_description">New alarm</string>
-    <string name="delete_option_string">Delete alarm</string>
+    <string name="delete_option_string">Delete</string>
     <string name="description_title">Description</string>
     <string name="discard_button_title">Discard changes</string>
     <string name="duration_title">Duration</string>

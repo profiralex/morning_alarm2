@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
@@ -51,29 +52,6 @@ public class AlarmListActivity extends Activity {
     private AlarmListAdapter ad;
     GcmRegisterer gcmRegisterer;
 
-
-    private OnClickListener addButtonOnClickListener = new OnClickListener() {
-        /**
-         * listener onclick pentru butonul add Alarm
-         */
-        public void onClick(View arg0) {
-            Alarm newAlarm = AlarmDbUtilities.fetchNewAlarm(AlarmListActivity.this);
-            lastIndex = alarmList.size();
-            alarmList.add(newAlarm);
-            Intent i;
-            if (Build.VERSION.SDK_INT < 11) {
-                i = new Intent(AlarmListActivity.this, AlarmSettingsActivity.class);
-            } else {
-                i = new Intent(AlarmListActivity.this, AlarmFragmentsSettingsActivity.class);
-            }
-            i.putExtra(AlarmDbAdapter.KEY_ID, newAlarm.getId());
-            lastId = newAlarm.getId();
-            AlarmListActivity.this.startActivityForResult(i, 0);
-
-        }
-
-    };
-
     private OnItemClickListener listItemClickListener = new OnItemClickListener() {
         public void onItemClick(AdapterView<?> adapter, View view, int arg,
                                 long position) {
@@ -97,6 +75,7 @@ public class AlarmListActivity extends Activity {
      */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
@@ -107,13 +86,10 @@ public class AlarmListActivity extends Activity {
         lv.setOnItemClickListener(listItemClickListener);
         emptyTextViewVisibility();
 
-        Button b = (Button) this.findViewById(R.id.add_btn);
-        b.setOnClickListener(addButtonOnClickListener);
-
         gcmRegisterer = new GcmRegisterer(this);
 
-        if(gcmRegisterer.setUpGcm()){
-            Log.e(Constants.TAG,"Eroare gcm");
+        if (gcmRegisterer.setUpGcm()) {
+            Log.e(Constants.TAG, "Eroare gcm");
         }
 
         this.registerForContextMenu(lv);
@@ -123,8 +99,8 @@ public class AlarmListActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(!gcmRegisterer.checkPlayServices()){
-            Log.e(Constants.TAG,"Eroare gcm on resume");
+        if (!gcmRegisterer.checkPlayServices()) {
+            Log.e(Constants.TAG, "Eroare gcm on resume");
         }
     }
 
@@ -144,9 +120,8 @@ public class AlarmListActivity extends Activity {
      * creaza meniu cu optiuni
      */
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.delete_menu, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
 
@@ -159,15 +134,41 @@ public class AlarmListActivity extends Activity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.menu_delete_all_option:
-                AlarmDbUtilities.deleteAll(this);
-                alarmList.removeAll(alarmList);
-                emptyTextViewVisibility();
-                ad.notifyDataSetChanged();
+                removeAllAlarms();
+                break;
+            case R.id.menu_new_alarm:
+                addNewAlarm();
+                break;
+            case R.id.menu_asociate_alarms:
+                Intent i = new Intent(AlarmListActivity.this, AssociateAlarmsActivity.class);
+                AlarmListActivity.this.startActivity(i);
                 break;
         }
         return true;
     }
 
+    private void addNewAlarm() {
+        Alarm newAlarm = AlarmDbUtilities.fetchNewAlarm(AlarmListActivity.this);
+        lastIndex = alarmList.size();
+        alarmList.add(newAlarm);
+        Intent i;
+        if (Build.VERSION.SDK_INT < 11) {
+            i = new Intent(AlarmListActivity.this, AlarmSettingsActivity.class);
+        } else {
+            i = new Intent(AlarmListActivity.this, AlarmFragmentsSettingsActivity.class);
+        }
+        i.putExtra(AlarmDbAdapter.KEY_ID, newAlarm.getId());
+        lastId = newAlarm.getId();
+        AlarmListActivity.this.startActivityForResult(i, 0);
+
+    }
+
+    private void removeAllAlarms(){
+        AlarmDbUtilities.deleteAll(this);
+        alarmList.removeAll(alarmList);
+        emptyTextViewVisibility();
+        ad.notifyDataSetChanged();
+    }
 
     @Override
     /**

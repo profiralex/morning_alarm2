@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="false"
+    android:focusable="false"
+    android:focusableInTouchMode="false">
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/radioButton"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="3dp"
+        android:clickable="false"
+        android:enabled="false"
+        android:focusableInTouchMode="false"
+        android:focusable="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/textView"
+        android:textSize="20sp"
+        android:focusable="false"
+        android:focusableInTouchMode="false" />
+
+</LinearLayout><!-- From: file:/home/alexandr/AndroidStudioProjects/MorningAlarm/MorningAlarm/res/layout/list_item_persons.xml -->

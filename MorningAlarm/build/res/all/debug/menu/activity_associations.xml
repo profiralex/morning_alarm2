@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_new_person"
+        android:title="New Person"
+        android:icon="@android:drawable/ic_menu_add"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_delete_all_option"
+        android:title="Delete all"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+</menu><!-- From: file:/home/alexandr/AndroidStudioProjects/MorningAlarm/MorningAlarm/res/menu/activity_associations.xml -->
