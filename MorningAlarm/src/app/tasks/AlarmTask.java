@@ -18,10 +18,9 @@ import android.os.PowerManager;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 
 import app.alarmmanager.AlarmSetter;
-import app.morningalarm.Alarm;
+import app.utils.Alarm;
 import app.utils.Constants;
 
 /**

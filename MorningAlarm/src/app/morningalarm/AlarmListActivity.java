@@ -22,7 +22,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,6 +34,7 @@ import java.util.Calendar;
 import app.alarmmanager.AlarmSetter;
 import app.database.AlarmDbAdapter;
 import app.database.AlarmDbUtilities;
+import app.utils.Alarm;
 import app.utils.Constants;
 import app.gcm.GcmRegisterer;
 
@@ -140,7 +140,7 @@ public class AlarmListActivity extends Activity {
                 addNewAlarm();
                 break;
             case R.id.menu_asociate_alarms:
-                Intent i = new Intent(AlarmListActivity.this, AssociateAlarmsActivity.class);
+                Intent i = new Intent(AlarmListActivity.this, GroupsListActivity.class);
                 AlarmListActivity.this.startActivity(i);
                 break;
         }
@@ -218,6 +218,9 @@ public class AlarmListActivity extends Activity {
             aSetter.setAlarm(alarm);
         }
         AlarmDbUtilities.updateAlarm(this, alarm);
+
+        alarmList.removeAll(alarmList);
+        alarmList.addAll(AlarmDbUtilities.fetchAllAlarms(this));
         ad.notifyDataSetChanged();
         emptyTextViewVisibility();
     }

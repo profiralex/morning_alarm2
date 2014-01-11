@@ -16,6 +16,6 @@
         android:id="@+id/id_empty_list_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No associations"
+        android:text="No Groups Created"
         android:textAppearance="?android:attr/textAppearanceLarge"/>
 </LinearLayout>

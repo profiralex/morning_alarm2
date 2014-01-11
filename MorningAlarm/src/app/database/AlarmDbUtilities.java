@@ -1,12 +1,16 @@
 package app.database;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import android.content.Context;
 import android.database.Cursor;
+
+import com.google.android.gms.internal.em;
+
 import app.alarmmanager.AlarmSetter;
-import app.morningalarm.Alarm;
+import app.utils.Alarm;
+import app.utils.Group;
+import app.utils.Person;
 
 /**
  * clasa cu utilitati pentru aplicatie
@@ -18,7 +22,7 @@ public class AlarmDbUtilities {
 	/**
 	 * returneaza arrayList cu toate alarmele din cursor
 	 */
-	public static final ArrayList<Alarm> fetchCursor(Cursor c){
+	public static final ArrayList<Alarm> fetchAlarmCursor(Cursor c){
 		ArrayList<Alarm> arr = new ArrayList<Alarm>();
 		if (c.moveToFirst()){
 			do{
@@ -35,6 +39,39 @@ public class AlarmDbUtilities {
 		c.close();
 		return arr;
 	}
+
+    public static final ArrayList<Group> fetchGroupCursor(Cursor c){
+        ArrayList<Group> arr = new ArrayList<Group>();
+        if (c.moveToFirst()){
+            do{
+                int id = c.getInt(c.getColumnIndexOrThrow(AlarmDbAdapter.KEY_ID));
+                String name = c.getString(c.getColumnIndexOrThrow(AlarmDbAdapter.KEY_GROUP_NAME));
+                String message = c.getString(c.getColumnIndexOrThrow(AlarmDbAdapter.KEY_GROUP_INVITATION_MESSAGE));
+                String alarmId = c.getString(c.getColumnIndexOrThrow(AlarmDbAdapter.KEY_GROUP_ALARM_ID));
+                arr.add(new Group(id, name, message, alarmId));
+            }while(c.moveToNext());
+        }
+        c.close();
+        return arr;
+    }
+
+    public static final ArrayList<Person> fetchPersonCursor(Cursor c){
+        ArrayList<Person> arr = new ArrayList();
+        if (c.moveToFirst()){
+            do{
+                Integer groupId = Integer.parseInt(c.getString(c.getColumnIndexOrThrow(AlarmDbAdapter.KEY_PERSON_GROUP_ID)));
+                String email = c.getString(c.getColumnIndexOrThrow(AlarmDbAdapter.KEY_PERSON_EMAIL));
+                int intAccepted = c.getInt(c.getColumnIndexOrThrow(AlarmDbAdapter.KEY_PERSON_ACCEPTED));
+                boolean accepted = false;
+                if(intAccepted == 1){
+                    accepted = true;
+                }
+                arr.add(new Person(groupId, email,accepted));
+            }while(c.moveToNext());
+        }
+        c.close();
+        return arr;
+    }
 	
 	/**
 	 * returneaza toate alarmele din baza de date
@@ -44,7 +81,7 @@ public class AlarmDbUtilities {
 		AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
         mDbHelper.open();
         Cursor c = mDbHelper.fetchAllAlarms();
-		arr = fetchCursor(c);
+		arr = fetchAlarmCursor(c);
 		c.close();
 		mDbHelper.close();
 		return arr;
@@ -58,7 +95,7 @@ public class AlarmDbUtilities {
 		AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
         mDbHelper.open();
         Cursor c = mDbHelper.fetchAlarm(alarmId);
-        ArrayList<Alarm> arr = fetchCursor(c);
+        ArrayList<Alarm> arr = fetchAlarmCursor(c);
 		c.close();
 		mDbHelper.close();
 		if (arr.size() > 0){
@@ -76,7 +113,7 @@ public class AlarmDbUtilities {
         mDbHelper.open();
         mDbHelper.createAlarm();
         Cursor c = mDbHelper.fetchNewAlarm();
-        alarm = fetchCursor(c).get(0);
+        alarm = fetchAlarmCursor(c).get(0);
 		c.close();
 		mDbHelper.close();
 		return alarm;
@@ -104,7 +141,7 @@ public class AlarmDbUtilities {
 		}
 		AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
         mDbHelper.open();
-        mDbHelper.deletAll();
+        mDbHelper.deletAllAlarms();
         mDbHelper.close();
         
 	}
@@ -130,10 +167,86 @@ public class AlarmDbUtilities {
 		AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
         mDbHelper.open();
         Cursor c = mDbHelper.fetchEnabledAlarms();
-		arr = fetchCursor(c);
+		arr = fetchAlarmCursor(c);
 		c.close();
 		mDbHelper.close();
 		return arr;
 	}
+
+    public static final ArrayList<Group> fetchAllGroups(Context context){
+        ArrayList<Group> arr = new ArrayList<Group>();
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        Cursor c = mDbHelper.fetchAllGroups();
+        arr = fetchGroupCursor(c);
+        c.close();
+        mDbHelper.close();
+        return arr;
+    }
+
+    public static final ArrayList<Person> fetchAllPersonsFromGroup(Context context,int groupId){
+        ArrayList<Person> arr = new ArrayList<Person>();
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        Cursor c = mDbHelper.fetchAllPersonsFromGroup(groupId);
+        arr = fetchPersonCursor(c);
+        c.close();
+        mDbHelper.close();
+        return arr;
+    }
+
+    public static final Group createGroup(Context context, String name, String message, String alarmId){
+        ArrayList<Group> arr = new ArrayList<Group>();
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        mDbHelper.createGroup(name, message, alarmId);
+        Cursor c = mDbHelper.fetchGroup(name);
+        arr = fetchGroupCursor(c);
+        c.close();
+        mDbHelper.close();
+        return arr.get(0);
+    }
+
+    public static final Person createPerson(Context context, String email, int groupId){
+        ArrayList<Person> arr = new ArrayList();
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        mDbHelper.createPerson(email, groupId);
+        Cursor c = mDbHelper.fetchPerson(email, groupId);
+        arr = fetchPersonCursor(c);
+        c.close();
+        mDbHelper.close();
+        return arr.get(0);
+    }
+
+    public static final void removePerson(Context context, String email, int groupId){
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        mDbHelper.deletePerson(email, groupId);
+        mDbHelper.close();
+    }
+
+    public static final void removeAllPersonsFromGroup(Context context, int groupId){
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        mDbHelper.deleteAllPersonsFromGroup(groupId);
+        mDbHelper.close();
+    }
+
+    public static final void removeGroup(Context context, int id){
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        mDbHelper.deleteAllPersonsFromGroup(id);
+        mDbHelper.deleteGroup(id);
+        mDbHelper.close();
+    }
+
+    public static final void removeAllGroups(Context context){
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        mDbHelper.deleteAllPersons();
+        mDbHelper.deleteAllGroups();
+        mDbHelper.close();
+    }
 	
 }

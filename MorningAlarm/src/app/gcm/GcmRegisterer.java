@@ -3,7 +3,9 @@ package app.gcm;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import app.morningalarm.R;
 import app.network.ServerRequestComposer;
 import app.utils.Constants;
 
@@ -81,7 +84,7 @@ public class GcmRegisterer {
 
     public String getRegistrationId(Context activity) {
         final SharedPreferences prefs = getGCMPreferences(activity);
-        String registrationId = "";//prefs.getString(PROPERTY_REG_ID, "");
+        String registrationId = prefs.getString(PROPERTY_REG_ID, "");
         if (registrationId.isEmpty()) {
             Log.i(Constants.TAG, "Registration not found.");
             return "";
@@ -134,6 +137,20 @@ public class GcmRegisterer {
 
                     storeRegistrationId(activity, regId);
                 } catch (IOException ex) {
+                    activity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            new AlertDialog.Builder(activity)
+                                    .setTitle("Unable to register to server")
+                                    .setMessage("Some of features will be disabled")
+                                    .setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                        }
+                                    })
+                                    .setIcon(R.drawable.clock1)
+                                    .show();
+                        }
+                    });
                     msg = "Error :" + ex.getMessage();
                 }
                 return msg;

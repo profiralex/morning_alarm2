@@ -1,4 +1,4 @@
-package app.morningalarm;
+package app.utils;
 
 /**
  * clasa care defineste alarma

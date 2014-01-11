@@ -21,7 +21,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:label="@string/title_activity_main" android:name="app.morningalarm.AssociateAlarmsActivity">
+        <activity android:label="@string/title_activity_main" android:name="app.morningalarm.GroupsListActivity">
+        </activity>
+        <activity android:label="@string/title_activity_main" android:name="app.morningalarm.GroupActivity">
         </activity>
         <activity android:label="@string/title_activity_main" android:name="app.morningalarm.AlarmSettingsActivity">
         </activity>

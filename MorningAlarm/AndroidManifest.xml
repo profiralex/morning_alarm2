@@ -35,7 +35,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AssociateAlarmsActivity"
+            android:name=".GroupsListActivity"
+            android:label="@string/title_activity_main" >
+        </activity>
+        <activity
+            android:name=".GroupActivity"
             android:label="@string/title_activity_main" >
         </activity>
         <activity

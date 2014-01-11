@@ -224,49 +224,56 @@ containing a value of this type.
     }
     public static final class id {
         public static final int LinearLayout1=0x7f070005;
-        public static final int add_button=0x7f070015;
-        public static final int alarm_iv=0x7f07000c;
-        public static final int alarm_tb=0x7f070009;
-        public static final int alarm_tv_big=0x7f07000a;
-        public static final int alarm_tv_small=0x7f07000b;
-        public static final int cancel_button=0x7f070016;
-        public static final int delete_option=0x7f07001c;
-        public static final int email_edit=0x7f070014;
-        public static final int email_title=0x7f070013;
-        public static final int home_screen_iv=0x7f070008;
+        public static final int add_button=0x7f07000a;
+        public static final int alarm_item_layout=0x7f07000f;
+        public static final int alarm_iv=0x7f070013;
+        public static final int alarm_tb=0x7f070010;
+        public static final int alarm_tv_big=0x7f070011;
+        public static final int alarm_tv_small=0x7f070012;
+        public static final int cancel_button=0x7f07000b;
+        public static final int delete_option=0x7f070020;
+        public static final int email_edit=0x7f07001a;
+        public static final int email_title=0x7f070019;
+        public static final int group_message=0x7f070009;
+        public static final int group_name=0x7f070008;
+        public static final int home_screen_iv=0x7f07000c;
         public static final int hybrid=0x7f070004;
         public static final int id_empty_list_text_view=0x7f070007;
         public static final int listView1=0x7f070006;
-        public static final int math_test_answer=0x7f070011;
-        public static final int math_test_button=0x7f070012;
-        public static final int math_test_task=0x7f070010;
-        public static final int menu_asociate_alarms=0x7f07001d;
-        public static final int menu_delete_all_option=0x7f07001a;
-        public static final int menu_new_alarm=0x7f07001e;
-        public static final int menu_new_person=0x7f070019;
-        public static final int menu_settings=0x7f07001b;
+        public static final int math_test_answer=0x7f070017;
+        public static final int math_test_button=0x7f070018;
+        public static final int math_test_task=0x7f070016;
+        public static final int menu_asociate_alarms=0x7f070021;
+        public static final int menu_delete_all_option=0x7f07001e;
+        public static final int menu_new_alarm=0x7f070022;
+        public static final int menu_new_person=0x7f07001d;
+        public static final int menu_settings=0x7f07001f;
         public static final int none=0x7f070000;
         public static final int normal=0x7f070001;
-        public static final int radioButton=0x7f07000d;
+        public static final int radioButton=0x7f070014;
         public static final int satellite=0x7f070002;
-        public static final int simple_test_cancel_button=0x7f070018;
-        public static final int simple_test_snooze_button=0x7f070017;
+        public static final int simple_test_cancel_button=0x7f07001c;
+        public static final int simple_test_snooze_button=0x7f07001b;
         public static final int terrain=0x7f070003;
-        public static final int textView=0x7f07000e;
-        public static final int textView1=0x7f07000f;
+        public static final int textView=0x7f07000d;
+        public static final int textView1=0x7f070015;
+        public static final int textView2=0x7f07000e;
     }
     public static final class integer {
         public static final int google_play_services_version=0x7f080000;
     }
     public static final class layout {
-        public static final int activity_association=0x7f030000;
-        public static final int activity_main=0x7f030001;
-        public static final int home_screen_widget=0x7f030002;
-        public static final int list_item_main=0x7f030003;
-        public static final int list_item_persons=0x7f030004;
-        public static final int math_test_layout=0x7f030005;
-        public static final int person_add_dialog=0x7f030006;
-        public static final int simple_test_layout=0x7f030007;
+        public static final int activity_group=0x7f030000;
+        public static final int activity_group_list=0x7f030001;
+        public static final int activity_main=0x7f030002;
+        public static final int group_add_dialog=0x7f030003;
+        public static final int home_screen_widget=0x7f030004;
+        public static final int list_item_groups=0x7f030005;
+        public static final int list_item_main=0x7f030006;
+        public static final int list_item_persons=0x7f030007;
+        public static final int math_test_layout=0x7f030008;
+        public static final int person_add_dialog=0x7f030009;
+        public static final int simple_test_layout=0x7f03000a;
     }
     public static final class menu {
         public static final int activity_associations=0x7f0b0000;

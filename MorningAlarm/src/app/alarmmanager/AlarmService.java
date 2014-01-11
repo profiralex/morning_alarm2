@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 import app.database.AlarmDbAdapter;
 import app.database.AlarmDbUtilities;
-import app.morningalarm.Alarm;
+import app.utils.Alarm;
 import app.tasks.AlarmTask;
 import app.tasks.LogicAlarmTask;
 import app.tasks.MathAlarmTask;

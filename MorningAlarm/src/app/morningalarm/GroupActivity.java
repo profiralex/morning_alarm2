@@ -3,10 +3,8 @@ package app.morningalarm;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.text.Html;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,37 +16,55 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.ToggleButton;
+import android.widget.Toast;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
-import app.alarmmanager.AlarmSetter;
 import app.database.AlarmDbUtilities;
+import app.utils.Alarm;
+import app.utils.Group;
+import app.utils.Person;
 
 
 /**
  * Created by alexandr on 1/9/14.
  */
-public class AssociateAlarmsActivity extends Activity {
+public class GroupActivity extends Activity {
 
-    private ArrayList<PersonListAdapter.PersonHolder> personList;
+    private ArrayList<Person> personList;
     private PersonListAdapter personListAdapter;
+    private int groupId;
+    private String alarmId;
+    private Alarm alarm;
+
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(GroupActivity.this,"Click",Toast.LENGTH_SHORT);
+        }
+    };
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        setContentView(R.layout.activity_association);
+        setContentView(R.layout.activity_group);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
-        personList = new ArrayList();
-        addSomePersons();
+        groupId = this.getIntent().getIntExtra("group_id",0);
+        alarmId = this.getIntent().getStringExtra("alarm_id");
+        alarm = AlarmDbUtilities.fetchAlarm(this, alarmId);
+        personList = AlarmDbUtilities.fetchAllPersonsFromGroup(this,groupId);
+
         emptyTextViewVisibility();
+
+
+        LinearLayout alarmLayout = (LinearLayout) this.findViewById(R.id.alarm_item_layout);
+        alarmLayout.setOnClickListener(onClickListener);
 
         personListAdapter = new PersonListAdapter(this, R.layout.list_item_persons, personList);
         ListView lv = (ListView) findViewById(R.id.listView1);
@@ -56,15 +72,6 @@ public class AssociateAlarmsActivity extends Activity {
         registerForContextMenu(lv);
     }
 
-    private void addSomePersons() {
-        for (int i = 0; i < 10; i++) {
-            PersonListAdapter.PersonHolder person = new PersonListAdapter.PersonHolder();
-            person.email = i + "a";
-            person.accepted = (i % 2 == 0) ? true : false;
-            personList.add(person);
-        }
-
-    }
 
     /**
      * metoda ce determina daca trebuie afisat sau nu textview cu textul ca nu sint persoane
@@ -98,39 +105,45 @@ public class AssociateAlarmsActivity extends Activity {
                 removeAllPersons();
                 break;
             case R.id.menu_new_person:
-                addNewPerson();
+                addNewperson();
                 break;
         }
         return true;
     }
 
     private void removeAllPersons() {
-        personList = new ArrayList();
+        AlarmDbUtilities.removeAllPersonsFromGroup(this, groupId);
+        personList.removeAll(personList);
+        AlarmDbUtilities.removeAllPersonsFromGroup(this,groupId);
+        emptyTextViewVisibility();
         personListAdapter.notifyDataSetChanged();
     }
 
-    private void addNewPerson(){
+    private void addNewperson(){
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.person_add_dialog);
         dialog.setTitle("Add Person");
         dialog.show();
 
-        final EditText email = (EditText) dialog.findViewById(R.id.email_edit);
+        final EditText emailEdit = (EditText) dialog.findViewById(R.id.email_edit);
         Button addButton = (Button) dialog.findViewById(R.id.add_button);
         Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                PersonListAdapter.PersonHolder ph = new PersonListAdapter.PersonHolder();
-                ph.accepted = false;
-                ph.email = email.getText().toString();
-                personList.add(ph);
+            public void onClick(View v) {;
+            String email = emailEdit.getText().toString();
+            if(email.isEmpty()){
+                Toast.makeText(dialog.getContext(), "Email field must be filled", Toast.LENGTH_SHORT).show();
+            }else{
+                Person newPerson = AlarmDbUtilities.createPerson(GroupActivity.this, email, groupId);
+                personList.add(newPerson);
+                emptyTextViewVisibility();
                 personListAdapter.notifyDataSetChanged();
                 dialog.cancel();
             }
+            }
         });
-
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,7 +152,7 @@ public class AssociateAlarmsActivity extends Activity {
             }
         });
 
-
+        emptyTextViewVisibility();
     }
 
     @Override
@@ -162,8 +175,9 @@ public class AssociateAlarmsActivity extends Activity {
         switch (item.getItemId()) {
             case R.id.delete_option:
                 AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-                PersonListAdapter.PersonHolder person = personList.get((int) info.id);
+                Person person= personList.get((int) info.id);
                 personList.remove(person);
+                AlarmDbUtilities.removePerson(this, person.getEmail(), person.getGroupId());
                 emptyTextViewVisibility();
                 personListAdapter.notifyDataSetChanged();
                 break;
@@ -176,12 +190,12 @@ public class AssociateAlarmsActivity extends Activity {
      *
      * @author ALEXANDR
      */
-    public static class PersonListAdapter extends ArrayAdapter<PersonListAdapter.PersonHolder> {
+    public static class PersonListAdapter extends ArrayAdapter<Person> {
 
-        private ArrayList<PersonHolder> persons;
+        private ArrayList<Person> persons;
 
         public PersonListAdapter(Context context, int textViewResourceId,
-                                 ArrayList<PersonHolder> objects) {
+                                 ArrayList<Person> objects) {
             super(context, textViewResourceId, objects);
             this.persons = objects;
         }
@@ -198,24 +212,17 @@ public class AssociateAlarmsActivity extends Activity {
                 v = vi.inflate(R.layout.list_item_persons, null);
             }
 
-            final PersonHolder person = persons.get(position);
+            final Person person = persons.get(position);
             if (person != null) {
-                RadioButton radioButton = (RadioButton) v.findViewById(R.id.radioButton);
                 TextView email = (TextView) v.findViewById(R.id.textView);
+                RadioButton accepted = (RadioButton) v.findViewById(R.id.radioButton);
 
-                radioButton.setChecked(person.accepted);
-                email.setText(person.email);
+                email.setText(person.getEmail());
+                accepted.setChecked(person.isAccepted());
             }
 
             return v;
         }
-
-        public static class PersonHolder {
-            public String email;
-            public boolean accepted;
-        }
-
     }
-
 
 }
