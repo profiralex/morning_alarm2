@@ -60,7 +60,6 @@ public class GcmRegisterer {
             if (regId.isEmpty()) {
                 registerInBackground();
             } else {
-                Constants.setMyRegId(regId);
                 Log.d(Constants.TAG, "" + regId);
             }
         } else {
@@ -132,7 +131,6 @@ public class GcmRegisterer {
                         gcm = GoogleCloudMessaging.getInstance(activity);
                     }
                     regId = gcm.register(Constants.SENDER_ID);
-                    Constants.setMyRegId(regId);
                     msg = "Device registered, registration ID=" + regId;
 
                     sendRegistrationIdToBackend();

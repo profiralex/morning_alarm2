@@ -56,7 +56,7 @@ public class ServerRequestComposer {
         }
     }
 
-    public static void sendRequestToPerson(Group group, Person person, Alarm alarm) throws JSONException, IOException {
+    public static void sendRequestToPerson(Group group, Person person, Alarm alarm, String regId) throws JSONException, IOException {
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(Constants.SERVER_ADRESS + Constants.SERVER_SEND_REQUEST_PAGE);
         try {
@@ -68,7 +68,7 @@ public class ServerRequestComposer {
             nameValuePairs.add(new BasicNameValuePair("alarm_days_of_week", alarm.getDaysOfWeek()));
             nameValuePairs.add(new BasicNameValuePair("alarm_time", alarm.getTime() + ""));
             nameValuePairs.add(new BasicNameValuePair("alarm_wake_up_mode",alarm.getWakeUpMode()));
-            nameValuePairs.add(new BasicNameValuePair("myRegId", Constants.getMyRegId()));
+            nameValuePairs.add(new BasicNameValuePair("myRegId", regId));
             httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
             // Execute HTTP Post Request
@@ -91,7 +91,7 @@ public class ServerRequestComposer {
         }
     }
 
-    public static void sendResponseToPerson(String email, String groupId, String answer) throws JSONException, IOException {
+    public static void sendResponseToPerson(String email, String groupId, String answer, String regId) throws JSONException, IOException {
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(Constants.SERVER_ADRESS + Constants.SERVER_SEND_RESPONSE_PAGE);
         try {
@@ -100,7 +100,7 @@ public class ServerRequestComposer {
             nameValuePairs.add(new BasicNameValuePair("person_email", email));
             nameValuePairs.add(new BasicNameValuePair("group_id", groupId));
             nameValuePairs.add(new BasicNameValuePair("response", answer));
-            nameValuePairs.add(new BasicNameValuePair("myRegId", Constants.getMyRegId()));
+            nameValuePairs.add(new BasicNameValuePair("myRegId", regId));
             httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
             // Execute HTTP Post Request

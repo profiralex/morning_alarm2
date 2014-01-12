@@ -29,8 +29,10 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
 
         if (type.equals(Constants.TYPE_REGISTRATION)) {
+            Log.d(Constants.TAG, "Registration succeded");
             //Toast.makeText(context, "Registration succeded", Toast.LENGTH_LONG).show();
         } else if (type.equals(Constants.TYPE_MESSAGE)) {
+            Log.d(Constants.TAG, "message recieved");
             //Toast.makeText(context, newMessage, Toast.LENGTH_LONG).show();
         } else if (type.equals(Constants.TYPE_REQUEST)) {
             newMessage = "Request from " + gcmIntent.getStringExtra("sender_email");
@@ -43,12 +45,13 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
             String response = gcmIntent.getStringExtra("response");
             String email = gcmIntent.getStringExtra("sender_email");
             String groupId = gcmIntent.getStringExtra("group_id");
-            newMessage = email +" accepted your request for alarm";
             Person person = AlarmDbUtilities.fetchPerson(context, email, groupId);
             if(response.equals("ok")){
+                newMessage = email +" accepted your request for alarm";
                 person.setAccepted(true);
                 AlarmDbUtilities.updatePerson(context, person);
             }else{
+                newMessage = email +" rejected your request for alarm";
                 AlarmDbUtilities.removePerson(context, email, person.getGroupId());
             }
 

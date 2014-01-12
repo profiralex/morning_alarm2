@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -32,9 +34,12 @@ import android.widget.ToggleButton;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import app.alarmmanager.AlarmSetter;
 import app.database.AlarmDbUtilities;
+import app.gcm.GcmRegisterer;
 import app.network.ServerRequestComposer;
 import app.utils.Alarm;
 import app.utils.Constants;
@@ -53,6 +58,7 @@ public class GroupActivity extends Activity {
     private Group group;
     private String alarmId;
     private Alarm alarm;
+    Timer timer = new Timer();
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -63,6 +69,14 @@ public class GroupActivity extends Activity {
         }
     };
 
+    public Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            personList.removeAll(personList);
+            personList.addAll(AlarmDbUtilities.fetchAllPersonsFromGroup(GroupActivity.this, groupId));
+            personListAdapter.notifyDataSetChanged();
+            emptyTextViewVisibility();
+        }
+    };
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +103,7 @@ public class GroupActivity extends Activity {
         registerForContextMenu(lv);
 
         updateAlarmView();
+        startTimer();
     }
 
 
@@ -167,6 +182,33 @@ public class GroupActivity extends Activity {
         }
     }
 
+
+    protected void startTimer() {
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            public void run() {
+                mHandler.obtainMessage(1).sendToTarget();
+            }
+        }, 0, 5000);
+    }
+
+    protected void stopTimer() {
+        timer.cancel();
+    }
+
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        this.stopTimer();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        this.startTimer();
+    }
+
     @Override
     /**
      * creaza meniu cu optiuni
@@ -220,7 +262,9 @@ public class GroupActivity extends Activity {
                 String email = emailEdit.getText().toString();
                 if (email.isEmpty()) {
                     Toast.makeText(dialog.getContext(), "Email field must be filled", Toast.LENGTH_SHORT).show();
-                } else {
+                } else if (emailIsInPersonList(email)){
+                    Toast.makeText(dialog.getContext(), "Email is already in that list", Toast.LENGTH_SHORT).show();
+                }else{
                     Person newPerson = AlarmDbUtilities.createPerson(GroupActivity.this, email, groupId);
                     sendRequestToPersonInBackground(newPerson);
                     dialog.cancel();
@@ -238,21 +282,24 @@ public class GroupActivity extends Activity {
         emptyTextViewVisibility();
     }
 
+    private boolean emailIsInPersonList(String email){
+        for(Person p : personList){
+            if(p.getEmail().equals(email)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void sendRequestToPersonInBackground(final Person person) {
+        final GcmRegisterer gcm = new GcmRegisterer(this);
+        gcm.setUpGcm();
+        Log.d(Constants.TAG,gcm.getRegistrationId(this)+"zzxzxzxzxzxzzxzxxz\n");
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
                 try{
-                    ServerRequestComposer.sendRequestToPerson(group,person,alarm);
-                    GroupActivity.this.runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(GroupActivity.this, "Person registered succefully", Toast.LENGTH_SHORT).show();
-                            personList.add(person);
-                            emptyTextViewVisibility();
-                            personListAdapter.notifyDataSetChanged();
-                        }
-                    });
-
+                    ServerRequestComposer.sendRequestToPerson(group,person,alarm, gcm.getRegistrationId(GroupActivity.this));
                 }catch(Exception e){
                     e.printStackTrace();
                     GroupActivity.this.runOnUiThread(new Runnable() {

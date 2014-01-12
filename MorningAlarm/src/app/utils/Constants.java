@@ -16,15 +16,4 @@ public class Constants {
     public static final String TYPE_REGISTRATION = "registration";
     public static final String TYPE_ALARM = "alarm";
     public static final String TYPE_REQUEST = "request";
-    public static String myRegId = "";
-
-    public static String getMyRegId(){
-        return  myRegId;
-    }
-
-    public static void setMyRegId(String regId){
-        myRegId = regId;
-    }
-
-
 }

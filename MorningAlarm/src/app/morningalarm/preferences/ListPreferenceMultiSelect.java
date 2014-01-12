@@ -1,10 +1,5 @@
 package app.morningalarm.preferences;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -13,8 +8,13 @@ import android.content.res.TypedArray;
 import android.preference.ListPreference;
 import android.util.AttributeSet;
 import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 import app.morningalarm.R;
-import app.morningalarm.R.styleable;
 
 /**
  * clasa care definesc lista de preferinte cu checkboxuri
@@ -27,6 +27,7 @@ public class ListPreferenceMultiSelect extends ListPreference {
 	private static final String DEFAULT_SEPARATOR = "OV=I=XseparatorX=I=VO"; 
 	private String checkAllKey = null;
 	private boolean[] mClickedDialogEntryIndices;
+    private Context mContext;
 	
 	/**
 	 * constructorul clasei
@@ -35,6 +36,7 @@ public class ListPreferenceMultiSelect extends ListPreference {
 	 */
 	public ListPreferenceMultiSelect(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ListPreferenceMultiSelect);
         checkAllKey = a.getString( R.styleable.ListPreferenceMultiSelect_checkAll );
         String s = a.getString(R.styleable.ListPreferenceMultiSelect_separator );
@@ -63,6 +65,7 @@ public class ListPreferenceMultiSelect extends ListPreference {
 	 */
     public ListPreferenceMultiSelect(Context context) {
         this(context, null);
+        mContext = context;
     }
 
     

@@ -196,6 +196,13 @@ public class AlarmDbAdapter {
         return mDb.update(DATABASE_TABLE_ALARMS, args, KEY_ID + " = " + alarm.getId(), null);
     }
 
+    public long updateGroupAlarm(Alarm alarm) {
+        ContentValues args = new ContentValues();
+        args.put(KEY_TIME, alarm.getTime());
+        args.put(KEY_DESCRIPTION, alarm.getDescription());
+        return mDb.update(DATABASE_TABLE_ALARMS, args, KEY_ID + " = " + alarm.getId(), null);
+    }
+
     public long createGroup(String name, String msg, String alarmId){
         ContentValues insertValues = new ContentValues();
         insertValues.put(KEY_GROUP_NAME, name);

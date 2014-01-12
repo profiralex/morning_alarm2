@@ -231,6 +231,7 @@ public class GroupsListActivity extends Activity {
         alarm.setWakeUpMode(wakeUpMode);
         alarm.setDaysOfWeek(daysOfWeek);
         alarm.setRingtone(ringtone);
+        alarm.setEnabled(Alarm.ALARM_ENABLED);
 
         return alarm;
     }

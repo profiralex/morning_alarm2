@@ -140,6 +140,8 @@ public class AlarmDbUtilities {
 		AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
         mDbHelper.open();
         mDbHelper.deletAllAlarms();
+        mDbHelper.deleteAllGroups();
+        mDbHelper.deleteAllPersons();
         mDbHelper.close();
         
 	}
@@ -154,6 +156,14 @@ public class AlarmDbUtilities {
         mDbHelper.updateAlarm(alarm);
         mDbHelper.close();
 	}
+
+    public static final void updateGroupAlarm(Context context, Alarm alarm){
+
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        mDbHelper.updateGroupAlarm(alarm);
+        mDbHelper.close();
+    }
 	
 	/**
 	 * returneaza arrayList cu toate alarmele care sunt enabled
