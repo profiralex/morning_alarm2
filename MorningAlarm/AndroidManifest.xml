@@ -96,5 +96,10 @@
 
         <service android:name="app.gcm.GcmIntentService" />
 
+        <activity
+            android:name="app.gcm.GcmActivity"
+            android:label="@string/title_activity_main" >
+        </activity>
+
 	</application>
 </manifest>

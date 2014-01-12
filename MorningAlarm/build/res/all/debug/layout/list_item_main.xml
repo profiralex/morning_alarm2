@@ -22,7 +22,8 @@
         android:layout_weight="0.83"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:clickable="false">
 
         <TextView
             android:id="@+id/alarm_tv_big"
@@ -31,7 +32,8 @@
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:clickable="false" />
 
         <TextView
             android:id="@+id/alarm_tv_small"
@@ -40,7 +42,8 @@
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:text="Small Text"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:clickable="false" />
 
     </LinearLayout>
 
@@ -53,7 +56,8 @@
         android:focusableInTouchMode="false"
         android:maxHeight="50dp"
         android:maxWidth="50dp"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/ic_launcher"
+        android:clickable="false" />
 
 </LinearLayout>
 	<!-- From: file:/home/alexandr/AndroidStudioProjects/MorningAlarm/MorningAlarm/res/layout/list_item_main.xml -->

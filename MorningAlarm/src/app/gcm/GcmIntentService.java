@@ -18,6 +18,9 @@ package app.gcm;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
+
+import app.utils.Constants;
 
 public class GcmIntentService extends IntentService {
 
@@ -27,6 +30,10 @@ public class GcmIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-
+        Log.d(Constants.TAG, "serviciu pornit");
+        Intent act = new Intent(this, GcmActivity.class);
+        act.putExtras(intent.getExtras());
+        act.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(act);
     }
 }

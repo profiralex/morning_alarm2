@@ -1,11 +1,9 @@
 package app.database;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.database.Cursor;
 
-import com.google.android.gms.internal.em;
+import java.util.ArrayList;
 
 import app.alarmmanager.AlarmSetter;
 import app.utils.Alarm;
@@ -184,6 +182,39 @@ public class AlarmDbUtilities {
         return arr;
     }
 
+    public static final Group fetchGroup(Context context, int groupId){
+        ArrayList<Group> arr = new ArrayList<Group>();
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        Cursor c = mDbHelper.fetchGroup(groupId);
+        arr = fetchGroupCursor(c);
+        c.close();
+        mDbHelper.close();
+        return arr.get(0);
+    }
+
+    public static final Person fetchPerson(Context context, String email){
+        ArrayList<Person> arr = new ArrayList();
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        Cursor c = mDbHelper.fetchPerson(email);
+        arr = fetchPersonCursor(c);
+        c.close();
+        mDbHelper.close();
+        return arr.get(0);
+    }
+
+    public static final Person fetchPerson(Context context, String email, String groupId){
+        ArrayList<Person> arr = new ArrayList();
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        Cursor c = mDbHelper.fetchPerson(email, groupId);
+        arr = fetchPersonCursor(c);
+        c.close();
+        mDbHelper.close();
+        return arr.get(0);
+    }
+
     public static final ArrayList<Person> fetchAllPersonsFromGroup(Context context,int groupId){
         ArrayList<Person> arr = new ArrayList<Person>();
         AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
@@ -246,6 +277,13 @@ public class AlarmDbUtilities {
         mDbHelper.open();
         mDbHelper.deleteAllPersons();
         mDbHelper.deleteAllGroups();
+        mDbHelper.close();
+    }
+
+    public static final void updatePerson(Context context, Person person){
+        AlarmDbAdapter mDbHelper = AlarmDbAdapter.getInstance(context);
+        mDbHelper.open();
+        mDbHelper.updatePerson(person);
         mDbHelper.close();
     }
 	

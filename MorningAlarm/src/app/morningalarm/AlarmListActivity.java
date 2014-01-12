@@ -88,7 +88,7 @@ public class AlarmListActivity extends Activity {
 
         gcmRegisterer = new GcmRegisterer(this);
 
-        if (gcmRegisterer.setUpGcm()) {
+        if (!gcmRegisterer.setUpGcm()) {
             Log.e(Constants.TAG, "Eroare gcm");
         }
 
@@ -141,7 +141,8 @@ public class AlarmListActivity extends Activity {
                 break;
             case R.id.menu_asociate_alarms:
                 Intent i = new Intent(AlarmListActivity.this, GroupsListActivity.class);
-                AlarmListActivity.this.startActivity(i);
+                lastIndex = -2;
+                AlarmListActivity.this.startActivityForResult(i, 0);
                 break;
         }
         return true;
@@ -163,7 +164,7 @@ public class AlarmListActivity extends Activity {
 
     }
 
-    private void removeAllAlarms(){
+    private void removeAllAlarms() {
         AlarmDbUtilities.deleteAll(this);
         alarmList.removeAll(alarmList);
         emptyTextViewVisibility();
@@ -208,16 +209,17 @@ public class AlarmListActivity extends Activity {
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (lastIndex != -2) {
+            SharedPreferences sp = this.getSharedPreferences(lastId, Context.MODE_PRIVATE);
 
-        SharedPreferences sp = this.getSharedPreferences(lastId, Context.MODE_PRIVATE);
+            Alarm alarm = getAlarmFromSharedPreferences(sp);
 
-        Alarm alarm = getAlarmFromSharedPreferences(sp);
-
-        if (alarm.isEnabled() == Alarm.ALARM_ENABLED) {
-            AlarmSetter aSetter = new AlarmSetter(this);
-            aSetter.setAlarm(alarm);
+            if (alarm.isEnabled() == Alarm.ALARM_ENABLED) {
+                AlarmSetter aSetter = new AlarmSetter(this);
+                aSetter.setAlarm(alarm);
+            }
+            AlarmDbUtilities.updateAlarm(this, alarm);
         }
-        AlarmDbUtilities.updateAlarm(this, alarm);
 
         alarmList.removeAll(alarmList);
         alarmList.addAll(AlarmDbUtilities.fetchAllAlarms(this));

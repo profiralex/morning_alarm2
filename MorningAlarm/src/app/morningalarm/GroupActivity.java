@@ -3,8 +3,13 @@ package app.morningalarm;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,16 +21,23 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
+import app.alarmmanager.AlarmSetter;
 import app.database.AlarmDbUtilities;
+import app.network.ServerRequestComposer;
 import app.utils.Alarm;
+import app.utils.Constants;
 import app.utils.Group;
 import app.utils.Person;
 
@@ -38,13 +50,16 @@ public class GroupActivity extends Activity {
     private ArrayList<Person> personList;
     private PersonListAdapter personListAdapter;
     private int groupId;
+    private Group group;
     private String alarmId;
     private Alarm alarm;
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Toast.makeText(GroupActivity.this,"Click",Toast.LENGTH_SHORT);
+            Intent i = new Intent(GroupActivity.this, AlarmFragmentsSettingsActivity.class);
+            i.putExtra("id", alarm.getId());
+            GroupActivity.this.startActivityForResult(i, 0);
         }
     };
 
@@ -55,21 +70,25 @@ public class GroupActivity extends Activity {
         setContentView(R.layout.activity_group);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
-        groupId = this.getIntent().getIntExtra("group_id",0);
+        groupId = this.getIntent().getIntExtra("group_id", 0);
         alarmId = this.getIntent().getStringExtra("alarm_id");
+        Log.d(Constants.TAG, alarmId);
+        group = AlarmDbUtilities.fetchGroup(this, groupId);
         alarm = AlarmDbUtilities.fetchAlarm(this, alarmId);
-        personList = AlarmDbUtilities.fetchAllPersonsFromGroup(this,groupId);
+        personList = AlarmDbUtilities.fetchAllPersonsFromGroup(this, groupId);
 
         emptyTextViewVisibility();
 
 
-        LinearLayout alarmLayout = (LinearLayout) this.findViewById(R.id.alarm_item_layout);
+        LinearLayout alarmLayout = (LinearLayout) this.findViewById(R.id.LinearLayout2);
         alarmLayout.setOnClickListener(onClickListener);
 
         personListAdapter = new PersonListAdapter(this, R.layout.list_item_persons, personList);
         ListView lv = (ListView) findViewById(R.id.listView1);
         lv.setAdapter(personListAdapter);
         registerForContextMenu(lv);
+
+        updateAlarmView();
     }
 
 
@@ -81,6 +100,71 @@ public class GroupActivity extends Activity {
             findViewById(R.id.id_empty_list_text_view).setVisibility(View.GONE);
         else
             findViewById(R.id.id_empty_list_text_view).setVisibility(View.VISIBLE);
+    }
+
+    private void updateAlarmView() {
+        ImageView iv = (ImageView) this.findViewById(R.id.alarm_iv);
+        TextView tv_big = (TextView) this.findViewById(R.id.alarm_tv_big);
+        TextView tv_small = (TextView) this.findViewById(R.id.alarm_tv_small);
+        ToggleButton tb = (ToggleButton) this.findViewById(R.id.alarm_tb);
+        tb.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View arg0) {
+                AlarmSetter aSetter = new AlarmSetter(GroupActivity.this);
+                if (alarm.isEnabled() == Alarm.ALARM_ENABLED) {
+                    alarm.setEnabled(Alarm.ALARM_DISABLED);
+                    AlarmDbUtilities.updateAlarm(GroupActivity.this, alarm);
+                    aSetter.removeAlarm(alarm.getId());
+                } else {
+                    alarm.setEnabled(Alarm.ALARM_ENABLED);
+                    AlarmDbUtilities.updateAlarm(GroupActivity.this, alarm);
+                    aSetter.setAlarm(alarm);
+                }
+            }
+
+        });
+        if (iv != null) {
+            if (alarm.getWakeUpMode().equals("0"))
+                iv.setImageResource(R.drawable.simple_test);
+            if (alarm.getWakeUpMode().equals("1"))
+                iv.setImageResource(R.drawable.mathtest);
+            if (alarm.getWakeUpMode().equals("2"))
+                iv.setImageResource(R.drawable.logic_test);
+        }
+        if (tv_big != null) {
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(alarm.getTime());
+            DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
+            String bigView = "<b>" + df.format(c.getTime()) + "</b>    ";
+            String arr[] = {"S", "M", "T", "W", "T", "F", "S"};
+            String daysOfWeek = alarm.getDaysOfWeek();
+            if (daysOfWeek.contains("#ALL#")) {
+                for (int i = 1; i < 8; i++) {
+                    bigView += "<font color=\"blue\"<u>" + arr[i - 1] + "</u></font> ";
+                }
+
+            } else {
+                for (int i = 1; i < 8; i++) {
+                    if (daysOfWeek.contains(i + "")) {
+                        bigView += "<font color=\"blue\"<u>" + arr[i - 1] + "</u></font> ";
+                    } else {
+                        bigView += "<font color=\"red\"<u>" + arr[i - 1] + "</u></font> ";
+                    }
+
+                }
+            }
+            tv_big.setText(Html.fromHtml(bigView));
+        }
+
+        if (tv_small != null) {
+            tv_small.setText(alarm.getDescription());
+        }
+        if (tb != null) {
+            if (alarm.isEnabled() == Alarm.ALARM_ENABLED)
+                tb.setChecked(true);
+            else
+                tb.setChecked(false);
+        }
     }
 
     @Override
@@ -114,12 +198,12 @@ public class GroupActivity extends Activity {
     private void removeAllPersons() {
         AlarmDbUtilities.removeAllPersonsFromGroup(this, groupId);
         personList.removeAll(personList);
-        AlarmDbUtilities.removeAllPersonsFromGroup(this,groupId);
+        AlarmDbUtilities.removeAllPersonsFromGroup(this, groupId);
         emptyTextViewVisibility();
         personListAdapter.notifyDataSetChanged();
     }
 
-    private void addNewperson(){
+    private void addNewperson() {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.person_add_dialog);
         dialog.setTitle("Add Person");
@@ -131,17 +215,16 @@ public class GroupActivity extends Activity {
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {;
-            String email = emailEdit.getText().toString();
-            if(email.isEmpty()){
-                Toast.makeText(dialog.getContext(), "Email field must be filled", Toast.LENGTH_SHORT).show();
-            }else{
-                Person newPerson = AlarmDbUtilities.createPerson(GroupActivity.this, email, groupId);
-                personList.add(newPerson);
-                emptyTextViewVisibility();
-                personListAdapter.notifyDataSetChanged();
-                dialog.cancel();
-            }
+            public void onClick(View v) {
+                ;
+                String email = emailEdit.getText().toString();
+                if (email.isEmpty()) {
+                    Toast.makeText(dialog.getContext(), "Email field must be filled", Toast.LENGTH_SHORT).show();
+                } else {
+                    Person newPerson = AlarmDbUtilities.createPerson(GroupActivity.this, email, groupId);
+                    sendRequestToPersonInBackground(newPerson);
+                    dialog.cancel();
+                }
             }
         });
 
@@ -153,6 +236,40 @@ public class GroupActivity extends Activity {
         });
 
         emptyTextViewVisibility();
+    }
+
+    private void sendRequestToPersonInBackground(final Person person) {
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                try{
+                    ServerRequestComposer.sendRequestToPerson(group,person,alarm);
+                    GroupActivity.this.runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(GroupActivity.this, "Person registered succefully", Toast.LENGTH_SHORT).show();
+                            personList.add(person);
+                            emptyTextViewVisibility();
+                            personListAdapter.notifyDataSetChanged();
+                        }
+                    });
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                    GroupActivity.this.runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(GroupActivity.this, "Connection problem, can't send request", Toast.LENGTH_LONG).show();
+                            AlarmDbUtilities.removePerson(GroupActivity.this, person.getEmail(), groupId);;
+                        }
+                    });
+                }
+                return "";
+            }
+
+            @Override
+            protected void onPostExecute(String v) {
+                //TODO
+            }
+        }.execute(null, null, null);
     }
 
     @Override
@@ -175,7 +292,7 @@ public class GroupActivity extends Activity {
         switch (item.getItemId()) {
             case R.id.delete_option:
                 AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-                Person person= personList.get((int) info.id);
+                Person person = personList.get((int) info.id);
                 personList.remove(person);
                 AlarmDbUtilities.removePerson(this, person.getEmail(), person.getGroupId());
                 emptyTextViewVisibility();
@@ -183,6 +300,51 @@ public class GroupActivity extends Activity {
                 break;
         }
         return true;
+    }
+
+
+    @Override
+    /**
+     * se apeleaza la revenirea din preferinte
+     * seteaza alarma sau actualizeaza pe una existenta
+     */
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        SharedPreferences sp = this.getSharedPreferences(alarm.getId(), Context.MODE_PRIVATE);
+
+        Alarm alarm = getAlarmFromSharedPreferences(sp);
+
+        if (alarm.isEnabled() == Alarm.ALARM_ENABLED) {
+            AlarmSetter aSetter = new AlarmSetter(this);
+            aSetter.setAlarm(alarm);
+        }
+        AlarmDbUtilities.updateAlarm(this, alarm);
+        updateAlarmView();
+    }
+
+    private Alarm getAlarmFromSharedPreferences(SharedPreferences sp) {
+
+        String description = sp.getString("description", null);
+        String time = sp.getString("time", null);
+        String daysOfWeek = sp.getString("days_of_week", null);
+        String wakeUpMode = sp.getString("wake_up_mode", null);
+        String ringtone = sp.getString("ringtone", null);
+
+        Calendar when = Calendar.getInstance();
+        when.set(Calendar.SECOND, 0);
+        if (time != null) {
+            String timeArgs[] = time.split(":");
+            when.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeArgs[0]));
+            when.set(Calendar.MINUTE, Integer.parseInt(timeArgs[1]));
+        }
+
+        alarm.setDescription(description);
+        alarm.setTime(when.getTimeInMillis());
+        alarm.setWakeUpMode(wakeUpMode);
+        alarm.setDaysOfWeek(daysOfWeek);
+        alarm.setRingtone(ringtone);
+
+        return alarm;
     }
 
     /**

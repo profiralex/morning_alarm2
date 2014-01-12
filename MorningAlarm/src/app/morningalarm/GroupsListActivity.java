@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -23,8 +23,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
-import app.database.AlarmDbAdapter;
+import app.alarmmanager.AlarmSetter;
 import app.database.AlarmDbUtilities;
 import app.utils.Alarm;
 import app.utils.Group;
@@ -37,13 +38,16 @@ public class GroupsListActivity extends Activity {
 
     private ArrayList<Group> groupList;
     private GroupListAdapter groupListAdapter;
+    private String lastId;
 
     private AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             int pos = (int) position;
-            Intent i  = new Intent(GroupsListActivity.this, GroupActivity.class);
-            i.putExtra("id", groupList.get(pos).getId());
+            lastId = "-7";
+            Intent i = new Intent(GroupsListActivity.this, GroupActivity.class);
+            i.putExtra("alarm_id", groupList.get(pos).getAlarmId());
+            i.putExtra("group_id", groupList.get(pos).getId());
             GroupsListActivity.this.startActivityForResult(i, 0);
         }
     };
@@ -62,12 +66,6 @@ public class GroupsListActivity extends Activity {
         lv.setAdapter(groupListAdapter);
         lv.setOnItemClickListener(itemClickListener);
         registerForContextMenu(lv);
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        groupList = AlarmDbUtilities.fetchAllGroups(this);
-        groupListAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -115,7 +113,7 @@ public class GroupsListActivity extends Activity {
         groupListAdapter.notifyDataSetChanged();
     }
 
-    private void addNewGroup(){
+    private void addNewGroup() {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.group_add_dialog);
         dialog.setTitle("Add Group");
@@ -128,19 +126,25 @@ public class GroupsListActivity extends Activity {
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {;
-            String groupName = nameEdit.getText().toString();
-            String groupMessage = messageEdit.getText().toString();
-            if(groupMessage.isEmpty() || groupName.isEmpty()){
-                Toast.makeText(dialog.getContext(), "Both fields are required", Toast.LENGTH_SHORT).show();
-            }else{
-                Alarm newAlarm = AlarmDbUtilities.fetchNewAlarm(GroupsListActivity.this);
-                Group newGroup = AlarmDbUtilities.createGroup(GroupsListActivity.this, groupName, groupMessage, newAlarm.getId());
-                groupList.add(newGroup);
-                emptyTextViewVisibility();
-                groupListAdapter.notifyDataSetChanged();
-                dialog.cancel();
-            }
+            public void onClick(View v) {
+                ;
+                String groupName = nameEdit.getText().toString();
+                String groupMessage = messageEdit.getText().toString();
+                if (groupMessage.isEmpty() || groupName.isEmpty()) {
+                    Toast.makeText(dialog.getContext(), "Both fields are required", Toast.LENGTH_SHORT).show();
+                } else {
+                    Alarm newAlarm = AlarmDbUtilities.fetchNewAlarm(GroupsListActivity.this);
+                    Group newGroup = AlarmDbUtilities.createGroup(GroupsListActivity.this, groupName, groupMessage, newAlarm.getId());
+
+                    lastId = newAlarm.getId();
+                    groupList.add(newGroup);
+                    emptyTextViewVisibility();
+                    groupListAdapter.notifyDataSetChanged();
+                    Intent i = new Intent(GroupsListActivity.this, AlarmFragmentsSettingsActivity.class);
+                    i.putExtra("id", newAlarm.getId());
+                    GroupsListActivity.this.startActivityForResult(i, 0);
+                    dialog.cancel();
+                }
             }
         });
 
@@ -172,7 +176,7 @@ public class GroupsListActivity extends Activity {
         switch (item.getItemId()) {
             case R.id.delete_option:
                 AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-                Group group= groupList.get((int) info.id);
+                Group group = groupList.get((int) info.id);
                 groupList.remove(group);
                 AlarmDbUtilities.removeGroup(this, group.getId());
                 emptyTextViewVisibility();
@@ -180,6 +184,55 @@ public class GroupsListActivity extends Activity {
                 break;
         }
         return true;
+    }
+
+    @Override
+    /**
+     * se apeleaza la revenirea din preferinte
+     * seteaza alarma sau actualizeaza pe una existenta
+     */
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (!lastId.equals("-7")) {
+
+            SharedPreferences sp = this.getSharedPreferences(lastId, Context.MODE_PRIVATE);
+
+            Alarm alarm = getAlarmFromSharedPreferences(sp);
+
+            if (alarm.isEnabled() == Alarm.ALARM_ENABLED) {
+                AlarmSetter aSetter = new AlarmSetter(this);
+                aSetter.setAlarm(alarm);
+            }
+            AlarmDbUtilities.updateAlarm(this, alarm);
+
+            groupList = AlarmDbUtilities.fetchAllGroups(this);
+            groupListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private Alarm getAlarmFromSharedPreferences(SharedPreferences sp) {
+
+        String description = sp.getString("description", null);
+        String time = sp.getString("time", null);
+        String daysOfWeek = sp.getString("days_of_week", null);
+        String wakeUpMode = sp.getString("wake_up_mode", null);
+        String ringtone = sp.getString("ringtone", null);
+
+        Calendar when = Calendar.getInstance();
+        when.set(Calendar.SECOND, 0);
+        if (time != null) {
+            String timeArgs[] = time.split(":");
+            when.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeArgs[0]));
+            when.set(Calendar.MINUTE, Integer.parseInt(timeArgs[1]));
+        }
+        Alarm alarm = AlarmDbUtilities.fetchAlarm(this, lastId);
+        alarm.setDescription(description);
+        alarm.setTime(when.getTimeInMillis());
+        alarm.setWakeUpMode(wakeUpMode);
+        alarm.setDaysOfWeek(daysOfWeek);
+        alarm.setRingtone(ringtone);
+
+        return alarm;
     }
 
     /**
@@ -192,7 +245,7 @@ public class GroupsListActivity extends Activity {
         private ArrayList<Group> groups;
 
         public GroupListAdapter(Context context, int textViewResourceId,
-                                 ArrayList<Group> objects) {
+                                ArrayList<Group> objects) {
             super(context, textViewResourceId, objects);
             this.groups = objects;
         }

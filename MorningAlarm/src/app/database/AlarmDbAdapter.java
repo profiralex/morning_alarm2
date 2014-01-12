@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import app.utils.Alarm;
+import app.utils.Person;
 
 /**
  * clasa care este adaptor intre interfata bazei de date
@@ -229,6 +230,16 @@ public class AlarmDbAdapter {
         return mCursor;
     }
 
+    public Cursor fetchGroup(int id) throws SQLException {
+        Cursor mCursor = mDb.query(DATABASE_TABLE_GROUPS, new String[]{KEY_ID, KEY_GROUP_NAME,KEY_GROUP_INVITATION_MESSAGE,
+                KEY_GROUP_ALARM_ID},
+                KEY_ID + "=?", new String[]{id+""}, null, null, null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
     public Cursor fetchAllPersonsFromGroup(int group_id) throws SQLException {
         Cursor mCursor = mDb.query(DATABASE_TABLE_PERSONS, new String[]{KEY_PERSON_EMAIL,
                 KEY_PERSON_GROUP_ID,KEY_PERSON_ACCEPTED},
@@ -243,6 +254,26 @@ public class AlarmDbAdapter {
         Cursor mCursor = mDb.query(DATABASE_TABLE_PERSONS, new String[]{KEY_PERSON_EMAIL,
                 KEY_PERSON_GROUP_ID,KEY_PERSON_ACCEPTED},
                 KEY_PERSON_GROUP_ID + "=? and " + KEY_PERSON_EMAIL + "=?", new String[]{group_id + "",email}, null, null, null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+    public Cursor fetchPerson(String email, String group_id) throws SQLException {
+        Cursor mCursor = mDb.query(DATABASE_TABLE_PERSONS, new String[]{KEY_PERSON_EMAIL,
+                KEY_PERSON_GROUP_ID,KEY_PERSON_ACCEPTED},
+                KEY_PERSON_GROUP_ID + "=? and " + KEY_PERSON_EMAIL + "=?", new String[]{group_id + "",email}, null, null, null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+    public Cursor fetchPerson(String email) throws SQLException {
+        Cursor mCursor = mDb.query(DATABASE_TABLE_PERSONS, new String[]{KEY_PERSON_EMAIL,
+                KEY_PERSON_GROUP_ID,KEY_PERSON_ACCEPTED},
+                KEY_PERSON_EMAIL + "=?", new String[]{email}, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -270,6 +301,15 @@ public class AlarmDbAdapter {
         return mDb.delete(DATABASE_TABLE_GROUPS, null, null);
     }
 
+    public long updatePerson(Person person) {
+        ContentValues args = new ContentValues();
+        args.put(KEY_PERSON_GROUP_ID, person.getGroupId());
+        args.put(KEY_PERSON_EMAIL, person.getEmail());
+        args.put(KEY_PERSON_ACCEPTED, person.isAccepted());
+        return mDb.update(DATABASE_TABLE_PERSONS, args,
+                KEY_PERSON_GROUP_ID + " =? and " + KEY_PERSON_EMAIL +"=?" ,
+                new String[]{person.getGroupId()+"",person.getEmail()});
+    }
 
     /**
      * clasa interna care va fi helperul pentru baza de date

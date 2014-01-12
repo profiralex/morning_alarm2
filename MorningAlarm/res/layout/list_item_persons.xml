@@ -15,7 +15,7 @@
         android:layout_marginRight="15dp"
         android:layout_marginLeft="3dp"
         android:clickable="false"
-        android:enabled="false"
+        android:enabled="true"
         android:focusableInTouchMode="false"
         android:focusable="false" />
 
