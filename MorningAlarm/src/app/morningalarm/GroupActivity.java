@@ -299,13 +299,25 @@ public class GroupActivity extends Activity {
             @Override
             protected String doInBackground(Void... params) {
                 try{
-                    ServerRequestComposer.sendRequestToPerson(group,person,alarm, gcm.getRegistrationId(GroupActivity.this));
+                    String responseString = ServerRequestComposer.sendRequestToPerson(group,person,alarm, gcm.getRegistrationId(GroupActivity.this));
+                    if(responseString!=null && !responseString.startsWith("PERSON_EXISTS")){
+                        GroupActivity.this.runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(GroupActivity.this, "This person is not registered", Toast.LENGTH_LONG).show();
+                                AlarmDbUtilities.removePerson(GroupActivity.this, person.getEmail(), groupId);
+                            }
+                        });
+                    }else{
+                        if(responseString!=null){
+
+                        }
+                    }
                 }catch(Exception e){
                     e.printStackTrace();
                     GroupActivity.this.runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(GroupActivity.this, "Connection problem, can't send request", Toast.LENGTH_LONG).show();
-                            AlarmDbUtilities.removePerson(GroupActivity.this, person.getEmail(), groupId);;
+                            AlarmDbUtilities.removePerson(GroupActivity.this, person.getEmail(), groupId);
                         }
                     });
                 }
@@ -359,13 +371,15 @@ public class GroupActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         SharedPreferences sp = this.getSharedPreferences(alarm.getId(), Context.MODE_PRIVATE);
 
-        Alarm alarm = getAlarmFromSharedPreferences(sp);
+        Alarm newAlarm = getAlarmFromSharedPreferences(sp);
 
-        if (alarm.isEnabled() == Alarm.ALARM_ENABLED) {
+        alarm = newAlarm;
+
+        if (newAlarm.isEnabled() == Alarm.ALARM_ENABLED) {
             AlarmSetter aSetter = new AlarmSetter(this);
-            aSetter.setAlarm(alarm);
+            aSetter.setAlarm(newAlarm);
         }
-        AlarmDbUtilities.updateAlarm(this, alarm);
+        AlarmDbUtilities.updateAlarm(this, newAlarm);
         updateAlarmView();
     }
 
@@ -385,14 +399,16 @@ public class GroupActivity extends Activity {
             when.set(Calendar.MINUTE, Integer.parseInt(timeArgs[1]));
         }
 
-        alarm.setDescription(description);
-        alarm.setTime(when.getTimeInMillis());
-        alarm.setWakeUpMode(wakeUpMode);
-        alarm.setDaysOfWeek(daysOfWeek);
-        alarm.setRingtone(ringtone);
+        Alarm newAlarm = AlarmDbUtilities.fetchAlarm(this, alarm.getId());
+        newAlarm.setDescription(description);
+        newAlarm.setTime(when.getTimeInMillis());
+        newAlarm.setWakeUpMode(wakeUpMode);
+        newAlarm.setDaysOfWeek(daysOfWeek);
+        newAlarm.setRingtone(ringtone);
 
-        return alarm;
+        return newAlarm;
     }
+
 
     /**
      * clasa adaptor care adapteaza aplicatia la interfata clasei ListView

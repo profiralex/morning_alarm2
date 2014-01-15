@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -21,12 +22,17 @@ import app.utils.Person;
 
 public class GcmBroadcastReceiver extends BroadcastReceiver {
 
+    Vibrator vibrator;
+
     @Override
     public void onReceive(Context context, Intent gcmIntent) {
         String newMessage = gcmIntent.getStringExtra(Constants.EXTRA_MESSAGE);
         String type = gcmIntent.getStringExtra(Constants.EXTRA_MESSAGE_TYPE);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+
+        vibrator =(Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(1000);
 
         if (type.equals(Constants.TYPE_REGISTRATION)) {
             Log.d(Constants.TAG, "Registration succeded");

@@ -38,13 +38,14 @@ public class GroupsListActivity extends Activity {
 
     private ArrayList<Group> groupList;
     private GroupListAdapter groupListAdapter;
-    private String lastId;
+    private String flagExitFromPreferences;
+    private String lastAlarmId;
 
     private AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             int pos = (int) position;
-            lastId = "-7";
+            flagExitFromPreferences = "10";
             Intent i = new Intent(GroupsListActivity.this, GroupActivity.class);
             i.putExtra("alarm_id", groupList.get(pos).getAlarmId());
             i.putExtra("group_id", groupList.get(pos).getId());
@@ -101,6 +102,7 @@ public class GroupsListActivity extends Activity {
                 break;
             case R.id.menu_new_person:
                 addNewGroup();
+                flagExitFromPreferences="-7";
                 break;
         }
         return true;
@@ -135,11 +137,11 @@ public class GroupsListActivity extends Activity {
                 } else {
                     Alarm newAlarm = AlarmDbUtilities.fetchNewAlarm(GroupsListActivity.this);
                     Group newGroup = AlarmDbUtilities.createGroup(GroupsListActivity.this, groupName, groupMessage, newAlarm.getId());
-
-                    lastId = newAlarm.getId();
                     groupList.add(newGroup);
                     emptyTextViewVisibility();
                     groupListAdapter.notifyDataSetChanged();
+                    flagExitFromPreferences = "-7";
+                    lastAlarmId = newAlarm.getId();
                     Intent i = new Intent(GroupsListActivity.this, AlarmFragmentsSettingsActivity.class);
                     i.putExtra("id", newAlarm.getId());
                     GroupsListActivity.this.startActivityForResult(i, 0);
@@ -193,9 +195,9 @@ public class GroupsListActivity extends Activity {
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (!lastId.equals("-7")) {
+        if (flagExitFromPreferences.equals("-7")) {
 
-            SharedPreferences sp = this.getSharedPreferences(lastId, Context.MODE_PRIVATE);
+            SharedPreferences sp = this.getSharedPreferences(lastAlarmId, Context.MODE_PRIVATE);
 
             Alarm alarm = getAlarmFromSharedPreferences(sp);
 
@@ -225,7 +227,7 @@ public class GroupsListActivity extends Activity {
             when.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeArgs[0]));
             when.set(Calendar.MINUTE, Integer.parseInt(timeArgs[1]));
         }
-        Alarm alarm = AlarmDbUtilities.fetchAlarm(this, lastId);
+        Alarm alarm = AlarmDbUtilities.fetchAlarm(this, lastAlarmId);
         alarm.setDescription(description);
         alarm.setTime(when.getTimeInMillis());
         alarm.setWakeUpMode(wakeUpMode);

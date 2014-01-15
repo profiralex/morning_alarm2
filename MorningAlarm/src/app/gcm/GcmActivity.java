@@ -10,8 +10,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.util.Calendar;
-
 import app.alarmmanager.AlarmSetter;
 import app.database.AlarmDbUtilities;
 import app.morningalarm.AlarmFragmentsSettingsActivity;
@@ -125,22 +123,10 @@ public class GcmActivity extends Activity{
 
     private Alarm getAlarmFromSharedPreferences(SharedPreferences sp) {
 
-        String description = sp.getString("description", null);
-        String time = sp.getString("time", null);
         String daysOfWeek = sp.getString("days_of_week", null);
         String wakeUpMode = sp.getString("wake_up_mode", null);
         String ringtone = sp.getString("ringtone", null);
 
-        Calendar when = Calendar.getInstance();
-        when.set(Calendar.SECOND, 0);
-        if (time != null) {
-            String timeArgs[] = time.split(":");
-            when.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeArgs[0]));
-            when.set(Calendar.MINUTE, Integer.parseInt(timeArgs[1]));
-        }
-
-        alarm.setDescription(description);
-        alarm.setTime(when.getTimeInMillis());
         alarm.setWakeUpMode(wakeUpMode);
         alarm.setDaysOfWeek(daysOfWeek);
         alarm.setRingtone(ringtone);

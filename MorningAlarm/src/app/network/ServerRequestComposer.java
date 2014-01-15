@@ -56,7 +56,7 @@ public class ServerRequestComposer {
         }
     }
 
-    public static void sendRequestToPerson(Group group, Person person, Alarm alarm, String regId) throws JSONException, IOException {
+    public static String sendRequestToPerson(Group group, Person person, Alarm alarm, String regId) throws JSONException, IOException {
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(Constants.SERVER_ADRESS + Constants.SERVER_SEND_REQUEST_PAGE);
         try {
@@ -84,11 +84,15 @@ public class ServerRequestComposer {
                 Log.d(Constants.TAG, "Status code :" + response.getStatusLine().getStatusCode());
             }
 
+            return responseString;
+
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 
     public static void sendResponseToPerson(String email, String groupId, String answer, String regId) throws JSONException, IOException {
@@ -122,6 +126,8 @@ public class ServerRequestComposer {
             e.printStackTrace();
         }
     }
+
+
 
 
 }
